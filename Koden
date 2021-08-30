@@ -1,5 +1,17 @@
 // Plant monitoring system
 
+# define sensorPin A0
+int soilValue;
+int thresholdvalue = ?
+
+void loop() {
+  soilValue = analogRead(sensorPin)
+}
+
+if (soilValue < thresholdvalue) {
+  /* begin water pump
+}
+
 /*
 Description of the code:
 This code is meant for the Plant monitoring system.
