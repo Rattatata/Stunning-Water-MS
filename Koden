@@ -1,38 +1,84 @@
+
+
 // Plant monitoring system
 
 /*
 Description of the code:
-This code is meant for the Plant monitoring system.
+This code is meant for the Plant Monitoring System.
 The LED lights will function as a feedback from the system
 and are supposed to be green, yellow and red. Just like a traffic light.
 The LED-lights are connected in this manner:
-Red = Pin ? (not decided)
-Yellow = Pin ? 
-Green = Pin ? 
+Red = Pin 13
+Yellow = Pin 12
+Green = Pin 11
+
+The water pump is connected throug a relay.
+
+The moisture sensor is 
 
 */
 
+// Including libraries
+
+#include <stdio.h>
+
 // Constants
 
-int LEDred = ?;
-int LEDyellow = ?;
-int LEDgreen = ?;
 
-int TVm = 40; //Minimum treshold value for soil moisture, unknown
-int TVmax = 70; //Maximum treshold value for soil moisture, unknown
-
+int LEDred = 13;
+int LEDyellow = 12;
+int LEDgreen = 11;
+int soilSens = A0;
+int Vmin = 261;
+int Vmax = 609;
+int TVmin = 300; //Minimum threshold value for resistance in soil
+int TVmax = 500; //Maximum threshold value for resistance in soil
+int soilValue;
+int relay = 10; 
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200); // Defining Baud rate. 115200 baud is chosen.
-  
+ Serial.begin(9600); // Defining Baud rate. 9600 baud is chosen.
+ pinMode(LEDred, OUTPUT);
+ pinMode(LEDyellow, OUTPUT);
+ pinMode(LEDgreen, OUTPUT);
+ pinMode(relay, OUTPUT);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  soilValue = analogRead(soilSens);
+  
+  // If resistance in soil is higher than maximum threshold,
+  // the water pump starts pumping water for 9 sec
+  if (soilValue <= TVmax) {
+    digitalWrite(LEDyellow, HIGH);// Turn on if the treshold values has been reached.
+    digitalWrite(LEDgreen, HIGH);
+    digitalWrite(LEDred, HIGH);
+    digitalWrite(relay, HIGH); //Turn on pump for 9 seconds
+    delay(9000);
+    digitalWrite(relay, LOW);// Turn pump off
+  }
 
-digitalWrite(LEDred, HIGH); // Turn on if feedback of an error is necessary
-digitalWrite(LEDyellow, HIGH);// Turn on if the treshold values has been reached.
-digitalWrite(LEDgreen, HIGH); //Turn on if the program does not find anything wrong.
-
+  // if the plant soil is has to low resistance values,
+  // the soil has too much water in it and a red light turns on. 
+  // The other light are turned off
+  else if (soilValue <= TVmin) {
+    digitalWrite(LEDred, HIGH); // Turn on if feedback of an error is necessary
+    digitalWrite(LEDgreen, LOW);
+    digitalWrite(LEDyellow, LOW);
+  }
+  
+  // if everything works properly, and the soil humidity is within
+  // satisfactory values, the green light turns on.
+  // The other light are turned off
+  else {
+  digitalWrite(LEDgreen, HIGH);
+    digitalWrite(LEDred, LOW); // Turn on if feedback of an error is necessary
+  digitalWrite(LEDyellow, LOW);// Turn on if the threshold values has been reached.
+  }
+  Serial.println(analogRead(soilSens));
+  delay(30000); //Wait for 30 sec
+  
 }
+   
